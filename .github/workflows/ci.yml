@@ -29,9 +29,17 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        # pnpm avoids the npm reify hang (npm/cli#9386) that made npm ci
-        # deadlock and crash with "Exit handler never called!" on the runner.
-        run: pnpm install --frozen-lockfile
+        # Bootstrap: package.json changed (testing-library/jsdom added) but
+        # pnpm-lock.yaml cannot be regenerated locally, so allow pnpm to
+        # update it here and upload it to commit back. Revert to
+        # --frozen-lockfile once the lockfile is committed.
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Upload generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-lock
+          path: pnpm-lock.yaml
 
       - name: Lint
         run: pnpm run lint
