@@ -26,21 +26,24 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # npm ci intermittently crashes on the runner with
-        # "Exit handler never called!" while reifying the vitest/rollup
-        # optional native binaries. Retry a couple of times with a hard
-        # timeout so a stuck install fails fast instead of hanging ~8 min.
+        # npm ci can hang forever and then crash with
+        # "Exit handler never called!" (npm/cli#9386). The root cause is an
+        # agent-base bug: with more dependencies than maxsockets (default 15),
+        # any single failed/slow tarball fetch strands the queued fetches, so
+        # the install never settles. Raising maxsockets above the dependency
+        # count removes the agent queue entirely, so fetches resolve (or fail)
+        # fast instead of hanging. timeout -s KILL force-kills a genuine hang
+        # (plain SIGTERM is ignored in the stuck state), and we retry once.
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2; do
             echo "npm ci attempt $attempt"
-            if timeout 240 npm ci --no-audit --no-fund; then
+            if timeout -s KILL 300 npm ci --no-audit --no-fund --maxsockets 1000; then
               exit 0
             fi
             echo "npm ci attempt $attempt failed; cleaning and retrying"
             rm -rf node_modules
-            npm cache verify || true
           done
-          echo "npm ci failed after 3 attempts"
+          echo "npm ci failed after 2 attempts"
           exit 1
 
       - name: Lint
