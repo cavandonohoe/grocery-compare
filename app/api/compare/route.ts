@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { defaultTripOptions, runComparison } from "@/lib/pricing/comparePrices";
 
-const compareRequestSchema = z.object({
+export const compareRequestSchema = z.object({
   items: z.array(z.string().min(1)).min(1),
   tripOptions: z
     .object({
