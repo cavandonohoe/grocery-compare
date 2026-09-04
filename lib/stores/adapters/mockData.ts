@@ -98,5 +98,25 @@ export const mockProducts: StoreProduct[] = [
     category: "Dairy",
     price: 5.49,
     unitPrice: 0.17
+  },
+  {
+    externalId: "ralphs-synergy-1",
+    storeSlug: "ralphs",
+    name: "Synergy Raw Kombucha Gingerade",
+    brand: "GT's Living Foods",
+    size: "16 fl oz",
+    category: "Beverages",
+    price: 3.99,
+    unitPrice: 0.25
+  },
+  {
+    externalId: "vons-synergy-1",
+    storeSlug: "vons",
+    name: "Synergy Raw Kombucha Gingerade",
+    brand: "GT's Living Foods",
+    size: "16 fl oz",
+    category: "Beverages",
+    price: 2.49,
+    unitPrice: 0.16
   }
 ];

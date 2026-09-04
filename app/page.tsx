@@ -4,7 +4,7 @@ import { StoreTotals } from "@/components/comparison/StoreTotals";
 import { TripWorthItCard } from "@/components/comparison/TripWorthItCard";
 import { runComparison } from "@/lib/pricing/comparePrices";
 
-const starterItems = ["milk", "eggs", "sourdough bread", "bananas", "greek yogurt"];
+const starterItems = ["milk", "eggs", "sourdough bread", "bananas", "greek yogurt", "synergy kombucha"];
 const comparison = await runComparison(starterItems);
 
 export default function Home() {
