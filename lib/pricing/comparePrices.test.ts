@@ -8,11 +8,11 @@ describe("runComparison", () => {
     expect(result.rows).toHaveLength(2);
 
     const milk = result.rows.find((r) => r.rawItem === "milk");
-    // Ralph's milk (4.49) is cheaper than Vons (4.79)
+    // Ralphs milk (4.49) is cheaper than Vons (4.79)
     expect(milk?.cheapestStoreSlug).toBe("ralphs");
 
     const eggs = result.rows.find((r) => r.rawItem === "eggs");
-    // Vons eggs (3.49) is cheaper than Ralph's (3.99)
+    // Vons eggs (3.49) is cheaper than Ralphs (3.99)
     expect(eggs?.cheapestStoreSlug).toBe("vons");
   });
 
