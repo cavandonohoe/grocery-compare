@@ -11,7 +11,9 @@ export type ComparisonRow = {
 };
 
 export type ComparisonTotals = {
-  singleStore: Record<StoreSlug, number>;
+  // `null` for a store means it cannot supply the entire basket, so it is not a
+  // valid single-store option.
+  singleStore: Record<StoreSlug, number | null>;
   splitStore: number;
   bestSavings: number;
 };
