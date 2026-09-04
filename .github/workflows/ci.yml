@@ -14,6 +14,7 @@ jobs:
   verify:
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,18 +23,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Pin npm
-        # npm 11 on the runner intermittently crashes with
-        # "Exit handler never called!" during npm ci. Pin to the last
-        # stable major that does not have this regression.
-        run: npm install -g npm@10
+          cache: npm
 
       - name: Install dependencies
-        # --no-audit/--no-fund avoid the network calls that can hang the
-        # runner's npm ci; the lockfile carries the full cross-platform
-        # optional-dependency tree so the install is deterministic.
-        run: npm ci --no-audit --no-fund
+        # npm ci intermittently crashes on the runner with
+        # "Exit handler never called!" while reifying the vitest/rollup
+        # optional native binaries. Retry a couple of times with a hard
+        # timeout so a stuck install fails fast instead of hanging ~8 min.
+        run: |
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt"
+            if timeout 240 npm ci --no-audit --no-fund; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed; cleaning and retrying"
+            rm -rf node_modules
+            npm cache verify || true
+          done
+          echo "npm ci failed after 3 attempts"
+          exit 1
 
       - name: Lint
         run: npm run lint
