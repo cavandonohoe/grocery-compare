@@ -1,0 +1,38 @@
+import type { StoreAdapter } from "@/lib/stores/types";
+import type { StoreProduct, StoreSlug } from "@/types/store";
+import { mockProducts } from "@/lib/stores/adapters/mockData";
+
+const storeNames: Record<StoreSlug, string> = {
+  ralphs: "Ralph's",
+  vons: "Vons"
+};
+
+export function createMockAdapter(storeSlug: StoreSlug): StoreAdapter {
+  const products = mockProducts.filter((product) => product.storeSlug === storeSlug);
+
+  return {
+    storeSlug,
+    displayName: storeNames[storeSlug],
+    async searchProducts(query) {
+      const normalizedQuery = normalize(query);
+      return products
+        .map((product) => ({ product, score: scoreProduct(product, normalizedQuery) }))
+        .filter((candidate) => candidate.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map((candidate) => candidate.product);
+    },
+    async getProductPrice(externalId) {
+      return products.find((product) => product.externalId === externalId) ?? null;
+    }
+  };
+}
+
+function scoreProduct(product: StoreProduct, normalizedQuery: string) {
+  const haystack = normalize([product.name, product.brand, product.category].filter(Boolean).join(" "));
+  const terms = normalizedQuery.split(" ").filter(Boolean);
+  return terms.reduce((score, term) => score + (haystack.includes(term) ? 1 : 0), 0);
+}
+
+function normalize(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
