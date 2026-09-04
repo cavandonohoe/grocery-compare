@@ -26,24 +26,21 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # npm ci can hang forever and then crash with
-        # "Exit handler never called!" (npm/cli#9386). The root cause is an
-        # agent-base bug: with more dependencies than maxsockets (default 15),
-        # any single failed/slow tarball fetch strands the queued fetches, so
-        # the install never settles. Raising maxsockets above the dependency
-        # count removes the agent queue entirely, so fetches resolve (or fail)
-        # fast instead of hanging. timeout -s KILL force-kills a genuine hang
-        # (plain SIGTERM is ignored in the stuck state), and we retry once.
+        # npm ci hard-hangs on this dependency tree on the Linux runner:
+        # reification never settles, and even SIGKILL-timeout retries of
+        # npm ci never complete. npm install uses a different install path
+        # that does settle (verified locally). --ignore-scripts skips the
+        # local-only prepare hook (git hooksPath), which is a no-op in CI.
         run: |
           for attempt in 1 2; do
-            echo "npm ci attempt $attempt"
-            if timeout -s KILL 300 npm ci --no-audit --no-fund --maxsockets 1000; then
+            echo "npm install attempt $attempt"
+            if timeout -s KILL 300 npm install --no-audit --no-fund --ignore-scripts; then
               exit 0
             fi
-            echo "npm ci attempt $attempt failed; cleaning and retrying"
+            echo "npm install attempt $attempt failed; cleaning and retrying"
             rm -rf node_modules
           done
-          echo "npm ci failed after 2 attempts"
+          echo "npm install failed after 2 attempts"
           exit 1
 
       - name: Lint
