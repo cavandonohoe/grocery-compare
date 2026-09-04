@@ -6,9 +6,16 @@ type MatchProductsInput = {
   candidates: StoreProduct[];
 };
 
-export async function matchProductsWithAi({ item, candidates }: MatchProductsInput) {
+type MatchProductsResult = {
+  raw: string | null;
+  candidates: StoreProduct[];
+};
+
+export async function matchProductsWithAi(
+  { item, candidates }: MatchProductsInput
+): Promise<MatchProductsResult> {
   if (!process.env.OPENAI_API_KEY) {
-    return candidates;
+    return { raw: null, candidates };
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -28,7 +35,7 @@ export async function matchProductsWithAi({ item, candidates }: MatchProductsInp
   });
 
   return {
-    raw: response.output_text,
+    raw: response.output_text ?? null,
     candidates
   };
 }
