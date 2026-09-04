@@ -1,18 +1,16 @@
 import type { StoreAdapter } from "@/lib/stores/types";
 import type { StoreProduct, StoreSlug } from "@/types/store";
 import { mockProducts } from "@/lib/stores/adapters/mockData";
-
-const storeNames: Record<StoreSlug, string> = {
-  ralphs: "Ralph's",
-  vons: "Vons"
-};
+import { getStoreInfo } from "@/lib/stores/storeCatalog";
 
 export function createMockAdapter(storeSlug: StoreSlug): StoreAdapter {
   const products = mockProducts.filter((product) => product.storeSlug === storeSlug);
+  const info = getStoreInfo(storeSlug);
 
   return {
     storeSlug,
-    displayName: storeNames[storeSlug],
+    displayName: info.name,
+    info,
     async searchProducts(query) {
       const normalizedQuery = normalize(query);
       return products
