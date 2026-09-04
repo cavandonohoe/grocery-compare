@@ -4,7 +4,24 @@ import { getEnabledStoreAdapters } from "@/lib/stores/registry";
 import { calculateTotals } from "@/lib/pricing/calculateTotals";
 import { evaluateTripSavings } from "@/lib/pricing/evaluateTripSavings";
 
-export async function runComparison(rawItems: string[]): Promise<ComparisonRun> {
+export type TripOptions = {
+  extraMinutes: number;
+  extraMiles: number;
+  valueOfTimeHourly: number;
+  gasCostPerMile: number;
+};
+
+export const defaultTripOptions: TripOptions = {
+  extraMinutes: 18,
+  extraMiles: 5.2,
+  valueOfTimeHourly: 20,
+  gasCostPerMile: 0.24
+};
+
+export async function runComparison(
+  rawItems: string[],
+  tripOptions: TripOptions = defaultTripOptions
+): Promise<ComparisonRun> {
   const adapters = getEnabledStoreAdapters();
   const rows: ComparisonRow[] = [];
 
@@ -45,10 +62,7 @@ export async function runComparison(rawItems: string[]): Promise<ComparisonRun> 
   const totals = calculateTotals(rows);
   const tripEvaluation = evaluateTripSavings({
     grossSavings: totals.bestSavings,
-    extraMinutes: 18,
-    extraMiles: 5.2,
-    valueOfTimeHourly: 20,
-    gasCostPerMile: 0.24
+    ...tripOptions
   });
 
   return {
