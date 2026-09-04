@@ -1,13 +1,11 @@
-import { GroceryListEditor } from "@/components/grocery-list/GroceryListEditor";
-import { PriceComparisonTable } from "@/components/comparison/PriceComparisonTable";
-import { StoreTotals } from "@/components/comparison/StoreTotals";
-import { TripWorthItCard } from "@/components/comparison/TripWorthItCard";
+import { CompareWorkspace } from "@/components/grocery-list/CompareWorkspace";
 import { runComparison } from "@/lib/pricing/comparePrices";
 
 const starterItems = ["milk", "eggs", "sourdough bread", "bananas", "greek yogurt", "synergy kombucha"];
-const comparison = await runComparison(starterItems);
 
-export default function Home() {
+export default async function Home() {
+  const initialComparison = await runComparison(starterItems);
+
   return (
     <main className="app-shell">
       <div className="app-frame">
@@ -19,18 +17,7 @@ export default function Home() {
           <span className="pill">Mock pricing</span>
         </header>
 
-        <section className="workspace">
-          <GroceryListEditor initialItems={starterItems} />
-          <div className="panel">
-            <div className="panel-header">
-              <h2>Best Basket</h2>
-              <p>Equivalent products are matched through the shared store adapter flow.</p>
-            </div>
-            <StoreTotals totals={comparison.totals} />
-            <PriceComparisonTable rows={comparison.rows} />
-            <TripWorthItCard evaluation={comparison.tripEvaluation} />
-          </div>
-        </section>
+        <CompareWorkspace initialItems={starterItems} initialComparison={initialComparison} />
       </div>
     </main>
   );
