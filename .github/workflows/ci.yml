@@ -22,7 +22,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Pin npm
         # npm 11 on the runner intermittently crashes with
@@ -31,7 +30,10 @@ jobs:
         run: npm install -g npm@10
 
       - name: Install dependencies
-        run: npm ci
+        # --no-audit/--no-fund avoid the network calls that can hang the
+        # runner's npm ci; the lockfile carries the full cross-platform
+        # optional-dependency tree so the install is deterministic.
+        run: npm ci --no-audit --no-fund
 
       - name: Lint
         run: npm run lint
