@@ -11,20 +11,20 @@
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
-    "next": "latest",
-    "openai": "latest",
-    "pg": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "zod": "latest"
+    "next": "^16.3.4",
+    "openai": "^7.10.0",
+    "pg": "^8.23.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/pg": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "eslint": "latest",
-    "eslint-config-next": "latest",
-    "typescript": "latest"
+    "@types/node": "^26.4.1",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
+    "typescript": "^6.0.3"
   }
 }
