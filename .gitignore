@@ -1,5 +1,8 @@
 node_modules
 .npm-cache
+# This project uses pnpm; ignore any npm/yarn lockfiles generated locally.
+package-lock.json
+yarn.lock
 .next
 out
 dist

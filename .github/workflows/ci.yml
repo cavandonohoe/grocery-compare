@@ -19,38 +19,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        # npm ci hard-hangs on this dependency tree on the Linux runner:
-        # reification never settles, and even SIGKILL-timeout retries of
-        # npm ci never complete. npm install uses a different install path
-        # that does settle (verified locally). --ignore-scripts skips the
-        # local-only prepare hook (git hooksPath), which is a no-op in CI.
-        run: |
-          for attempt in 1 2; do
-            echo "npm install attempt $attempt"
-            if timeout -s KILL 300 npm install --no-audit --no-fund --ignore-scripts; then
-              exit 0
-            fi
-            echo "npm install attempt $attempt failed; cleaning and retrying"
-            rm -rf node_modules
-          done
-          echo "npm install failed after 2 attempts"
-          exit 1
+        # pnpm avoids the npm reify hang (npm/cli#9386) that made npm ci
+        # deadlock and crash with "Exit handler never called!" on the runner.
+        # TODO: switch to --frozen-lockfile once pnpm-lock.yaml is committed.
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Upload generated lockfile
+        # TEMPORARY: lets us commit the pnpm-lock.yaml generated on the runner
+        # (local lockfile generation is blocked by a TLS-inspecting proxy).
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-lock
+          path: pnpm-lock.yaml
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Test
-        run: npm test
+        run: pnpm test
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
