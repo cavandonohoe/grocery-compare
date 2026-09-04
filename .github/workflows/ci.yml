@@ -24,6 +24,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Pin npm
+        # npm 11 on the runner intermittently crashes with
+        # "Exit handler never called!" during npm ci. Pin to the last
+        # stable major that does not have this regression.
+        run: npm install -g npm@10
+
       - name: Install dependencies
         run: npm ci
 
