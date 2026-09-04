@@ -1,5 +1,21 @@
 export type StoreSlug = "ralphs" | "vons";
 
+/**
+ * Real-world, verifiable metadata for a store banner. `websiteUrl` and
+ * `weeklyAdUrl` let us open the retailer ourselves to confirm the products and
+ * prices our adapters return.
+ */
+export type StoreInfo = {
+  slug: StoreSlug;
+  name: string;
+  parentCompany: string;
+  region: string;
+  websiteUrl: string;
+  weeklyAdUrl: string;
+  storeLocatorUrl: string;
+  loyaltyProgram: string;
+};
+
 export type Store = {
   id: string;
   name: string;

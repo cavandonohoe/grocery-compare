@@ -6,7 +6,13 @@ describe("createMockAdapter", () => {
 
   it("exposes the store slug and display name", () => {
     expect(adapter.storeSlug).toBe("ralphs");
-    expect(adapter.displayName).toBe("Ralph's");
+    expect(adapter.displayName).toBe("Ralphs");
+  });
+
+  it("exposes verifiable store metadata", () => {
+    expect(adapter.info.name).toBe("Ralphs");
+    expect(adapter.info.parentCompany).toBe("Kroger");
+    expect(adapter.info.websiteUrl).toBe("https://www.ralphs.com");
   });
 
   it("only returns products for its own store", async () => {
