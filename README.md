@@ -19,8 +19,8 @@ and gas.
 Install dependencies and start the dev server:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open the app at the URL printed by Next.js (defaults to
@@ -49,23 +49,23 @@ needed when you wire up real integrations:
 
 | Script | Command | Description |
 | --- | --- | --- |
-| `npm run dev` | `next dev` | Start the development server. |
-| `npm run build` | `next build` | Build the production bundle. |
-| `npm run start` | `next start` | Serve the production build. |
-| `npm run lint` | `eslint .` | Lint the codebase. |
-| `npm run typecheck` | `tsc --noEmit` | Type-check without emitting output. |
-| `npm test` | `vitest run` | Run the test suite once. |
-| `npm run test:watch` | `vitest` | Run tests in watch mode. |
+| `pnpm dev` | `next dev` | Start the development server. |
+| `pnpm build` | `next build` | Build the production bundle. |
+| `pnpm start` | `next start` | Serve the production build. |
+| `pnpm lint` | `eslint .` | Lint the codebase. |
+| `pnpm typecheck` | `tsc --noEmit` | Type-check without emitting output. |
+| `pnpm test` | `vitest run` | Run the test suite once. |
+| `pnpm test:watch` | `vitest` | Run tests in watch mode. |
 
 ## Testing
 
 Tests use [vitest](https://vitest.dev/). Run the full suite with:
 
 ```bash
-npm test
+pnpm test
 ```
 
-Use `npm run test:watch` for an interactive watch mode during development.
+Use `pnpm test:watch` for an interactive watch mode during development.
 
 Tests require Node.js >= 20 (vitest 4 runs on rolldown, which does not
 support Node 18).

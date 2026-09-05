@@ -11,12 +11,13 @@ export function createMockAdapter(storeSlug: StoreSlug): StoreAdapter {
     storeSlug,
     displayName: info.name,
     info,
-    async searchProducts(query) {
+    async searchProducts(query, options) {
       const normalizedQuery = normalize(query);
       return products
         .map((product) => ({ product, score: scoreProduct(product, normalizedQuery) }))
         .filter((candidate) => candidate.score > 0)
         .sort((a, b) => b.score - a.score)
+        .slice(0, options?.limit)
         .map((candidate) => candidate.product);
     },
     async getProductPrice(externalId) {

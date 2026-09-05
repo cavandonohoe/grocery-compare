@@ -1,5 +1,6 @@
 import type { ComparisonRow, ComparisonRun } from "@/types/comparison";
 import type { StoreProduct, StoreSlug } from "@/types/store";
+import { matchProductsWithAi } from "@/lib/ai/matchProducts";
 import { getEnabledStoreAdapters } from "@/lib/stores/registry";
 import { calculateTotals } from "@/lib/pricing/calculateTotals";
 import { evaluateTripSavings } from "@/lib/pricing/evaluateTripSavings";
@@ -27,21 +28,25 @@ export async function runComparison(
 
   for (const rawItem of rawItems) {
     const normalizedName = normalizeItem(rawItem);
+    const candidatesByStore = await Promise.all(
+      adapters.map(async (adapter) => adapter.searchProducts(normalizedName, { limit: 3 }))
+    );
+    const candidates = candidatesByStore.flat();
+
+    if (candidates.length === 0) {
+      continue;
+    }
+
+    const ranked = await matchProductsWithAi({ item: normalizedName, candidates });
     const storePrices = Object.fromEntries(
-      await Promise.all(
-        adapters.map(async (adapter) => {
-          const [match] = await adapter.searchProducts(normalizedName, { limit: 1 });
-          return [adapter.storeSlug, match];
-        })
-      )
+      adapters.map((adapter) => [
+        adapter.storeSlug,
+        ranked.candidates.find((candidate) => candidate.storeSlug === adapter.storeSlug)
+      ])
     ) as Partial<Record<StoreSlug, StoreProduct>>;
     const availableProducts = adapters
       .map((adapter) => storePrices[adapter.storeSlug])
       .filter((product): product is StoreProduct => Boolean(product));
-
-    if (availableProducts.length === 0) {
-      continue;
-    }
 
     const cheapest = availableProducts.reduce((best, product) =>
       product.price < best.price ? product : best
@@ -54,7 +59,7 @@ export async function runComparison(
       storePrices,
       cheapestStoreSlug: cheapest.storeSlug,
       cheapestStoreName: cheapestAdapter?.displayName ?? cheapest.storeSlug,
-      matchScore: 0.87,
+      matchScore: ranked.raw ? 0.92 : 0.87,
       matchNote: `${cheapest.brand ? `${cheapest.brand}, ` : ""}${cheapest.size ?? "standard size"}`
     });
   }
