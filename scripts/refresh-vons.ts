@@ -56,13 +56,23 @@ function parseArgs(argv: string[]): Args {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--port") {
-      args.port = Number(argv[++i]);
+      const port = Number(argv[++i]);
+      if (!Number.isInteger(port) || port <= 0) {
+        throw new Error(`--port expects a positive integer, got "${argv[i]}".`);
+      }
+      args.port = port;
     } else if (arg === "--price") {
-      args.price.push(argv[++i]);
+      const value = argv[++i];
+      if (!value || value.startsWith("--")) {
+        throw new Error("--price expects a product id (the number at the end of a Vons URL).");
+      }
+      args.price.push(value);
     } else if (arg === "--json") {
       args.json = true;
     } else if (arg === "--no-write") {
       args.noWrite = true;
+    } else {
+      throw new Error(`Unknown argument "${arg}". See docs/vons-cdp-refresh.md.`);
     }
   }
   return args;
@@ -220,14 +230,19 @@ async function main(): Promise<void> {
           console.log(`\n${p.id}: ${p.error}`);
           continue;
         }
-        const price = p.price as number;
-        const base = p.basePrice as number;
+        const price = p.price;
+        const base = p.basePrice;
         const savings =
           typeof price === "number" && typeof base === "number" && base > price
             ? `  (reg $${base.toFixed(2)}, save $${(base - price).toFixed(2)})`
             : "";
+        const priceLabel = typeof price === "number" ? `$${price.toFixed(2)}` : "price unavailable";
+        const perUnit =
+          typeof p.pricePer === "number" && p.unit
+            ? `  $${p.pricePer}/${String(p.unit).toLowerCase()}`
+            : "";
         console.log(`\n${p.name}  [${p.id}]`);
-        console.log(`  $${price.toFixed(2)}${savings}  $${p.pricePer}/${String(p.unit).toLowerCase()}`);
+        console.log(`  ${priceLabel}${savings}${perUnit}`);
         if (p.promoEnd) {
           console.log(`  deal ends ${String(p.promoEnd).slice(0, 10)}`);
         }
