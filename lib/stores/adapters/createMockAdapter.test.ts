@@ -26,6 +26,11 @@ describe("createMockAdapter", () => {
     expect(results[0].name.toLowerCase()).toContain("greek yogurt");
   });
 
+  it("honors the requested result limit", async () => {
+    const results = await adapter.searchProducts("dairy", { limit: 1 });
+    expect(results).toHaveLength(1);
+  });
+
   it("returns nothing when no term matches", async () => {
     const results = await adapter.searchProducts("nonexistent-product-xyz");
     expect(results).toHaveLength(0);

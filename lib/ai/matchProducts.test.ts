@@ -60,4 +60,14 @@ describe("matchProductsWithAi", () => {
     expect(result).toEqual({ raw: "ranked result", candidates });
     expect(createMock).toHaveBeenCalledTimes(1);
   });
+
+  it("reorders candidates when OpenAI returns known external ids", async () => {
+    process.env.OPENAI_API_KEY = "test-key";
+    createMock.mockResolvedValue({ output_text: JSON.stringify({ externalIds: ["b", "a"] }) });
+    const { matchProductsWithAi } = await import("@/lib/ai/matchProducts");
+
+    const result = await matchProductsWithAi({ item: "milk", candidates });
+
+    expect(result.candidates.map((candidate) => candidate.externalId)).toEqual(["b", "a"]);
+  });
 });
