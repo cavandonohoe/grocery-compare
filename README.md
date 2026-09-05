@@ -44,6 +44,10 @@ needed when you wire up real integrations:
   unset, matching falls back to term-overlap matching.
 - `OPENAI_MATCH_MODEL` (optional) model used for matching. Defaults to
   `gpt-5-mini`. Only used when `OPENAI_API_KEY` is set.
+- `VONS_SUBSCRIPTION_KEY` / `VONS_COOKIES` / `VONS_STORE_ID` (optional) enable
+  live Vons pricing via the `pdpdata` API. When unset, the Vons adapter falls
+  back to mock data. See [Store adapters](#store-adapters) for how to capture
+  and refresh them.
 
 ## Available Scripts
 
@@ -83,6 +87,26 @@ The app currently ships with mock Ralph's and Vons adapters
 (`lib/stores/adapters/ralphs.ts`, `lib/stores/adapters/vons.ts`) built on top
 of shared seed data (`lib/stores/adapters/mockData.ts`). This lets the full
 comparison flow work end to end without real store data sources.
+
+#### Live Vons pricing
+
+The Vons adapter can fetch real prices from Vons's `pdpdata` API
+(`lib/stores/adapters/vonsApi.ts`). Because Vons renders prices client-side and
+gates the API behind Imperva (Incapsula) bot protection, the adapter replays a
+captured browser session:
+
+- `VONS_SUBSCRIPTION_KEY` the `ocp-apim-subscription-key` header.
+- `VONS_COOKIES` the full `Cookie` header (the Incapsula cookies
+  `visid_incap_*`, `incap_ses_*`, `reese84`, plus the store session cookie).
+- `VONS_STORE_ID` the numeric store id a ZIP resolves to (defaults to `2002`).
+
+Capture these from DevTools > Network > the `pdpdata` request on a Vons product
+page (Copy as cURL is easiest). The Incapsula cookies rotate (roughly daily);
+when `getProductPrice` starts returning 403 the adapter logs a warning and
+falls back to mock data until `VONS_COOKIES` is refreshed. `getProductPrice`
+uses the live API keyed by a product's Vons id (the number at the end of a
+product URL, e.g. `971137941`); `searchProducts` still uses mock data because
+no public search endpoint is wired up yet.
 
 ### Pricing
 
