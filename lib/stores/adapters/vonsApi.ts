@@ -151,7 +151,10 @@ export async function fetchVonsProduct(
 
   const data = (await res.json()) as VonsPdpResponse;
   const doc = data.catalog?.response?.docs?.[0];
-  if (!doc || !doc.pid) {
+  // Treat a missing product, or one without a usable numeric price, as
+  // "not found" so the caller can fall back to mock data rather than
+  // propagate a NaN price into the comparison math.
+  if (!doc || !doc.pid || typeof doc.price !== "number" || !Number.isFinite(doc.price)) {
     return null;
   }
   return docToStoreProduct(doc);

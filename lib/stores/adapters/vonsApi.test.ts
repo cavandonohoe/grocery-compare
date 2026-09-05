@@ -122,6 +122,20 @@ describe("fetchVonsProduct", () => {
     expect(product).toBeNull();
   });
 
+  it("returns null when the doc has no usable numeric price", async () => {
+    const fetchImpl = vi.fn(async () =>
+      mockJsonResponse({
+        catalog: { response: { docs: [{ pid: "971137941", name: "No price" }] } }
+      })
+    );
+    const product = await fetchVonsProduct(
+      "971137941",
+      config,
+      fetchImpl as unknown as typeof fetch
+    );
+    expect(product).toBeNull();
+  });
+
   it("throws VonsBotBlockError on a 403", async () => {
     const fetchImpl = vi.fn(async () => mockJsonResponse("blocked", 403));
     await expect(
