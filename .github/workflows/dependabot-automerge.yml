@@ -1,6 +1,6 @@
 name: Dependabot auto-merge
 
-# Squash-merge Dependabot PRs once every other check on the PR has passed.
+# Approve and squash-merge Dependabot PRs once every other check has passed.
 # Minor/patch bumps merge on their own; major bumps (including any grouped PR
 # that contains one) and PRs with unparsable versions stay open for review.
 #
@@ -113,6 +113,17 @@ jobs:
             exit 0
           fi
           echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      # Approve as github-actions[bot] in case the ruleset requires a review.
+      # Needs "Allow GitHub Actions to create and approve pull requests".
+      - name: Approve
+        if: steps.checks.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review "$NUMBER" --approve \
+            --body "Auto-approved: minor/patch Dependabot bump with passing checks." \
+            || echo "::warning::Could not approve PR #$NUMBER; trying merge anyway."
 
       - name: Squash-merge
         if: steps.checks.outputs.ready == 'true'
